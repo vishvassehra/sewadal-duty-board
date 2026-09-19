@@ -5,6 +5,7 @@
 
 const PUBLISH_ID = process.env.SHEET_PUBLISH_ID ||
   '2PACX-1vTIUu2agX4IKd9Q9rrQAl0WjYu0-OQUZTZFLG4Usbs0tCbE1LVbqeAd1VvJY2GPQU3JcGjRaKNFTuup';
+
 const GID = process.env.SHEET_GID || '0';
 
 export default async function handler(req, res) {
