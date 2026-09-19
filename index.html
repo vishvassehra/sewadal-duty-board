@@ -487,7 +487,7 @@ function render(){
       `<div class="trade">${esc(g.trade)}</div>
        <div class="figure"><span class="big num">${g.on.length}</span><span class="of num">/${g.people.length}</span></div>
        <div class="sub">with us on this date</div>`+
-      (leaving? `<span class="chip">${leaving} leaving in 3 days</span>`:'');
+      (leaving? `<span class="chip">${leaving} leaving within 3 days</span>`:'');
     btn.addEventListener('click',()=>openSheet(g.trade));
     grid.appendChild(btn);
   }
