@@ -5,8 +5,7 @@
 
 const PUBLISH_ID = process.env.SHEET_PUBLISH_ID ||
   '2PACX-1vTIUu2agX4IKd9Q9rrQAl0WjYu0-OQUZTZFLG4Usbs0tCbE1LVbqeAd1VvJY2GPQU3JcGjRaKNFTuup';
-
-const GID = process.env.SHEET_GID || '0';
+const GID = process.env.SHEET_GID || '2089480289';
 
 export default async function handler(req, res) {
   const url = `https://docs.google.com/spreadsheets/d/e/${PUBLISH_ID}/pub?gid=${GID}&single=true&output=csv`;

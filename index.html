@@ -154,6 +154,38 @@
   .nonum{flex:none;font-size:12.5px;color:var(--muted);text-align:right;max-width:110px}
   .empty{padding:18px;text-align:center;color:var(--muted);font-size:14.5px}
   .leaving{color:var(--gold);font-weight:500}
+
+  .headbtns{display:flex;gap:8px;flex:none}
+  .printbtn{
+    font:inherit;font-size:14px;font-weight:600;background:var(--ink);color:#fff;border:0;
+    border-radius:10px;padding:0 14px;height:38px;cursor:pointer;white-space:nowrap;
+  }
+  .printbtn:hover{background:#0C211B}
+
+  /* ---------- A4 sheet ---------- */
+  #printarea{display:none}
+  @page{size:A4 portrait;margin:14mm 12mm}
+  @media print{
+    body{background:#fff}
+    body > *{display:none !important}
+    #printarea{display:block !important;font-family:Archivo,"Segoe UI",sans-serif;color:#000}
+    .p-head{text-align:center;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:12px}
+    .p-head h1{margin:0;font-size:19pt;font-weight:700;letter-spacing:-.01em}
+    .p-head div{font-size:11pt;margin-top:3px}
+    .p-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;font-size:11pt}
+    .p-meta strong{font-size:14pt}
+    table{width:100%;border-collapse:collapse;font-size:10.5pt}
+    thead{display:table-header-group}
+    tr{page-break-inside:avoid}
+    th,td{border:1px solid #000;padding:5px 7px;text-align:left;vertical-align:top}
+    th{background:#E8E8E8;font-weight:700;font-size:10pt}
+    td.n,th.n{text-align:center;width:9mm}
+    td.tel{font-weight:700;letter-spacing:.02em;white-space:nowrap}
+    td.d{white-space:nowrap}
+    .p-foot{margin-top:10px;font-size:9.5pt;display:flex;justify-content:space-between}
+    .p-sign{margin-top:22mm;display:flex;justify-content:space-between;font-size:10pt}
+    .p-sign span{border-top:1px solid #000;padding-top:4px;width:55mm;text-align:center}
+  }
 </style>
 </head>
 <body>
@@ -195,10 +227,15 @@
       <h2 id="sheetTitle">Trade</h2>
       <p id="sheetSub"></p>
     </div>
-    <button class="close" id="closeSheet" type="button" aria-label="Close">×</button>
+    <div class="headbtns">
+      <button class="printbtn" id="printBtn" type="button">Print A4</button>
+      <button class="close" id="closeSheet" type="button" aria-label="Close">×</button>
+    </div>
   </div>
   <div class="sheet-body" id="sheetBody"></div>
 </section>
+
+<div id="printarea"></div>
 
 <script>
 /* ------------------------------------------------------------------
@@ -587,6 +624,52 @@ $('todayBtn').addEventListener('click',()=>{
   selected = new Date(); selected.setHours(0,0,0,0);
   render();
 });
+/* ---------- A4 print ---------- */
+function printTrade(){
+  if(!openTrade) return;
+  const g = groupsFor(selected).find(x=>x.trade===openTrade);
+  if(!g) return;
+  const on = g.on.slice().sort((a,b)=>a.p.name.localeCompare(b.p.name));
+
+  const rows = on.map(({p,st},i)=>`<tr>
+      <td class="n">${i+1}</td>
+      <td>${esc(p.name)}</td>
+      <td>${esc(p.unit||'—')}</td>
+      <td class="tel">${p.mobile?esc(prettyNum(p.mobile)):'—'}</td>
+      <td class="d">${fmt(st.stint.doa)}</td>
+      <td class="d">${st.stint.dod?fmt(st.stint.dod):'—'}</td>
+    </tr>`).join('');
+
+  const now = new Date();
+  $('printarea').innerHTML = `
+    <div class="p-head">
+      <h1>79th Sant Nirankari Samagam</h1>
+      <div>Ground B</div>
+    </div>
+    <div class="p-meta">
+      <strong>${esc(g.trade)}</strong>
+      <span>As on ${fmt(selected)} · ${on.length} with us</span>
+    </div>
+    ${on.length ? `<table>
+      <thead><tr>
+        <th class="n">#</th><th>Name</th><th>Unit</th>
+        <th>Mobile No.</th><th>DOA</th><th>DOD</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>` : `<p>No ${esc(g.trade.toLowerCase())} with us on this date.</p>`}
+    <div class="p-foot">
+      <span>Total ${on.length}</span>
+      <span>Printed ${fmt(now)}, ${now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>
+    </div>
+    <div class="p-sign"><span>In-charge</span><span>Sewa Dal Officer</span></div>`;
+
+  const t = document.title;
+  document.title = g.trade+' — '+fmt(selected);
+  window.print();
+  setTimeout(()=>{ document.title = t; }, 500);
+}
+$('printBtn').addEventListener('click', printTrade);
+
 $('refresh').addEventListener('click',load);
 $('closeSheet').addEventListener('click',closeSheet);
 $('scrim').addEventListener('click',closeSheet);
