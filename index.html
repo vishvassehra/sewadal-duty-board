@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F2A22">
+<title>Sewadal on Duty</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪔</text></svg>">
+<style>
+  :root{
+    --ink:#132A23;
+    --ink-soft:#4B5E57;
+    --muted:#7A8B84;
+    --paper:#EEF2EF;
+    --surface:#FFFFFF;
+    --line:#D8E0DB;
+    --green:#16614A;
+    --green-tint:#E3EFE9;
+    --gold:#9A6B12;
+    --gold-tint:#F6EDDA;
+    --rule:#C8D3CD;
+    --radius:14px;
+    --shadow:0 1px 0 rgba(19,42,35,.05), 0 6px 18px -12px rgba(19,42,35,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:Archivo,"Segoe UI",system-ui,-apple-system,sans-serif;
+    font-size:16px;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:calc(28px + env(safe-area-inset-bottom));
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 16px}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+  /* ---------- header ---------- */
+  header{
+    background:var(--ink);
+    color:#EAF0EC;
+    padding:18px 0 22px;
+    padding-top:calc(18px + env(safe-area-inset-top));
+  }
+  .brandline{
+    display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+    font-size:13px;color:#9DB3AA;letter-spacing:.01em;
+  }
+  .brandline b{font-weight:600;color:#EAF0EC;font-size:15px;letter-spacing:-.01em}
+  .dateblock{margin-top:14px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .dateline{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+  .dateline span{display:block;font-size:13px;font-weight:400;color:#9DB3AA;letter-spacing:0;margin-top:4px}
+  .datepick{display:flex;align-items:center;gap:8px}
+  input[type=date]{
+    font:inherit;font-size:15px;background:#1D3A31;color:#EAF0EC;border:1px solid #2F4F45;
+    border-radius:10px;padding:9px 11px;min-height:44px;
+  }
+  .today-btn{
+    font:inherit;font-size:14px;font-weight:500;background:transparent;color:#9DB3AA;
+    border:1px solid #2F4F45;border-radius:10px;padding:9px 12px;min-height:44px;cursor:pointer;
+  }
+  .today-btn:hover{color:#EAF0EC;border-color:#4A6D61}
+  .tally{margin-top:16px;padding-top:14px;border-top:1px solid #2A473D;font-size:15px;color:#C4D3CC}
+  .tally b{color:#fff;font-weight:600}
+
+  /* ---------- cards ---------- */
+  main{padding-top:18px}
+  .sectlabel{font-size:13px;color:var(--muted);margin:0 0 10px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .card{
+    position:relative;text-align:left;font:inherit;cursor:pointer;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 14px 12px;box-shadow:var(--shadow);
+    display:flex;flex-direction:column;gap:2px;min-height:118px;
+  }
+  .card:hover{border-color:var(--green)}
+  .card:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+  .card .trade{font-size:15px;font-weight:600;letter-spacing:-.01em}
+  .card .figure{display:flex;align-items:baseline;gap:3px;margin-top:auto}
+  .card .big{font-size:38px;font-weight:700;line-height:1;letter-spacing:-.03em;color:var(--green)}
+  .card .of{font-size:17px;font-weight:500;color:var(--muted)}
+  .card .sub{font-size:12.5px;color:var(--muted);margin-top:4px}
+  .card.zero .big{color:#A6B3AD}
+  .chip{
+    align-self:flex-start;margin-top:6px;font-size:11.5px;font-weight:500;
+    background:var(--gold-tint);color:var(--gold);border-radius:20px;padding:3px 8px;
+  }
+
+  /* ---------- states ---------- */
+  .state{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px;text-align:center;color:var(--ink-soft);font-size:15px;
+  }
+  .state b{display:block;color:var(--ink);font-size:16px;margin-bottom:6px}
+  .state button{
+    font:inherit;font-size:15px;margin-top:14px;background:var(--ink);color:#fff;border:0;
+    border-radius:10px;padding:11px 18px;min-height:44px;cursor:pointer;
+  }
+  .skeleton{height:118px;border-radius:var(--radius);background:linear-gradient(90deg,#E6EBE7,#F3F6F4,#E6EBE7);
+    background-size:200% 100%;animation:sk 1.4s linear infinite}
+  @keyframes sk{to{background-position:-200% 0}}
+
+  footer{margin-top:20px;font-size:12.5px;color:var(--muted);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  footer button{font:inherit;font-size:12.5px;background:none;border:0;color:var(--green);text-decoration:underline;cursor:pointer;padding:6px 0}
+
+  /* ---------- detail sheet ---------- */
+  .scrim{position:fixed;inset:0;background:rgba(15,32,27,.45);opacity:0;pointer-events:none;transition:opacity .18s}
+  .scrim.open{opacity:1;pointer-events:auto}
+  .sheet{
+    position:fixed;left:0;right:0;bottom:0;max-height:92vh;z-index:5;
+    background:var(--paper);border-radius:18px 18px 0 0;
+    transform:translateY(100%);transition:transform .22s cubic-bezier(.2,.8,.3,1);
+    display:flex;flex-direction:column;
+  }
+  .sheet.open{transform:translateY(0)}
+  @media (prefers-reduced-motion:reduce){.sheet{transition:none}.scrim{transition:none}}
+  @media (min-width:760px){
+    .sheet{left:50%;right:auto;transform:translate(-50%,100%);width:700px;border-radius:18px;bottom:20px;max-height:86vh}
+    .sheet.open{transform:translate(-50%,0)}
+  }
+  .sheet-head{
+    padding:16px 16px 12px;border-bottom:1px solid var(--rule);background:var(--surface);
+    border-radius:18px 18px 0 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  }
+  .sheet-head h2{margin:0;font-size:21px;font-weight:700;letter-spacing:-.02em}
+  .sheet-head p{margin:3px 0 0;font-size:13.5px;color:var(--muted)}
+  .close{
+    font:inherit;font-size:22px;line-height:1;background:var(--paper);border:1px solid var(--line);
+    border-radius:50%;width:38px;height:38px;flex:none;cursor:pointer;color:var(--ink-soft);
+  }
+  .sheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 16px calc(24px + env(safe-area-inset-bottom))}
+  .grouphead{font-size:13px;color:var(--muted);margin:14px 2px 8px}
+  .grouphead:first-child{margin-top:2px}
+  .person{
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    padding:12px 13px;margin-bottom:8px;display:flex;gap:12px;align-items:center;
+  }
+  .person.off{background:#F7F9F8;border-style:dashed;opacity:.85}
+  .pmain{min-width:0;flex:1}
+  .pname{font-size:16px;font-weight:600;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pmeta{font-size:13px;color:var(--ink-soft);margin-top:2px}
+  .pdates{font-size:12.5px;color:var(--muted);margin-top:3px}
+  .call{
+    flex:none;display:inline-flex;align-items:center;gap:7px;text-decoration:none;
+    background:var(--green-tint);color:var(--green);border:1px solid #BFD9CE;
+    border-radius:10px;padding:10px 13px;min-height:44px;font-size:14.5px;font-weight:600;
+  }
+  .call:hover{background:#D5E7DE}
+  .call svg{width:15px;height:15px;fill:currentColor}
+  .nonum{flex:none;font-size:12.5px;color:var(--muted);text-align:right;max-width:110px}
+  .empty{padding:18px;text-align:center;color:var(--muted);font-size:14.5px}
+  .leaving{color:var(--gold);font-weight:500}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brandline">
+      <b>Sewadal on Duty</b>
+      <span id="stamp"></span>
+    </div>
+    <div class="dateblock">
+      <div class="dateline" id="bigdate">—
+        <span id="bigday"></span>
+      </div>
+      <div class="datepick">
+        <input type="date" id="date" aria-label="Show availability as on this date">
+        <button class="today-btn" id="todayBtn" type="button">Today</button>
+      </div>
+    </div>
+    <div class="tally" id="tally">Loading the register…</div>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="sectlabel" id="sectlabel">Tap a trade to see names and phone numbers</p>
+  <div class="grid" id="grid">
+    <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+  </div>
+  <footer>
+    <span id="foot"></span>
+    <button id="refresh" type="button">Refresh</button>
+  </footer>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="sheet-head">
+    <div>
+      <h2 id="sheetTitle">Trade</h2>
+      <p id="sheetSub"></p>
+    </div>
+    <button class="close" id="closeSheet" type="button" aria-label="Close">×</button>
+  </div>
+  <div class="sheet-body" id="sheetBody"></div>
+</section>
+
+<script>
+/* ------------------------------------------------------------------
+   Sewadal on Duty
+   Data source: one published Google Sheet, read through /api/sheet.
+   Columns used: Name, Unit, Mobile No., Trade, DOA, DOD.
+   Someone is on duty on a date when DOA is on or before it and DOD is
+   blank or on or after it. Blank DOD = still with us.
+-------------------------------------------------------------------*/
+
+const SOURCES = [
+  '/api/sheet'          // server-side read; keeps the sheet id out of the browser
+];
+
+/* ---------- CSV ---------- */
+function parseCSV(text){
+  const rows=[]; let row=[], field='', q=false;
+  text = text.replace(/^\uFEFF/,'');
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){field+='"';i++;} else q=false; }
+      else field+=c;
+    } else {
+      if(c==='"') q=true;
+      else if(c===','){ row.push(field); field=''; }
+      else if(c==='\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+      else if(c==='\r'){ /* skip */ }
+      else field+=c;
+    }
+  }
+  row.push(field); rows.push(row);
+  return rows.filter(r=>r.some(c=>String(c).trim()!==''));
+}
+
+/* ---------- headers ---------- */
+const WANT = {
+  name:   ['name','sewadal name','full name','sewadar','person'],
+  unit:   ['unit','branch','centre','center','zone','place','location','unit name'],
+  mobile: ['mobile no.','mobile no','mobile','phone','phone no','contact','contact no','mobile number','cell'],
+  trade:  ['trade','skill','category','work','trade/skill','designation'],
+  doa:    ['doa','date of arrival','arrival','arrival date','from','from date','joining','date of joining'],
+  dod:    ['dod','date of departure','departure','departure date','to','to date','till','leaving','date of leaving'],
+  remarks:['remarks','remark','note','notes']
+};
+const norm = s => String(s??'').toLowerCase().replace(/\s+/g,' ').trim();
+
+function findHeader(rows){
+  for(let i=0;i<Math.min(rows.length,12);i++){
+    const cells = rows[i].map(norm);
+    const map = {};
+    for(const key in WANT){
+      const idx = cells.findIndex(c=>c && WANT[key].includes(c));
+      if(idx>-1) map[key]=idx;
+    }
+    if(map.trade!==undefined && (map.doa!==undefined || map.dod!==undefined)) return {row:i,map};
+  }
+  // loose second pass: substring match
+  for(let i=0;i<Math.min(rows.length,12);i++){
+    const cells = rows[i].map(norm);
+    const map={};
+    for(const key in WANT){
+      const idx = cells.findIndex(c=>c && WANT[key].some(w=>c.includes(w)));
+      if(idx>-1) map[key]=idx;
+    }
+    if(map.trade!==undefined && (map.doa!==undefined || map.dod!==undefined)) return {row:i,map};
+  }
+  return null;
+}
+
+/* ---------- dates ---------- */
+const MON = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,sept:8,oct:9,nov:10,dec:11};
+function parseDate(v){
+  if(v==null) return null;
+  const s = String(v).trim();
+  if(!s) return null;
+  let m;
+  // 2026-09-19
+  if((m = s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/))) return mk(+m[1],+m[2]-1,+m[3]);
+  // 19/09/2026 · 19-09-26 · 19.9.2026   (day first)
+  if((m = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})$/))){
+    let d=+m[1], mo=+m[2], y=+m[3];
+    if(d>12 && mo<=12){ /* day first, fine */ }
+    else if(mo>12 && d<=12){ const t=d; d=mo; mo=t; }  // clearly month/day
+    if(y<100) y += y<70?2000:1900;
+    return mk(y,mo-1,d);
+  }
+  // 19 Sep 2026 · 19-Sep-26 · Sep 19, 2026
+  if((m = s.match(/^(\d{1,2})[\s-]([A-Za-z]{3,9})[\s-](\d{2,4})$/))){
+    const mo=MON[m[2].slice(0,4).toLowerCase()] ?? MON[m[2].slice(0,3).toLowerCase()];
+    let y=+m[3]; if(y<100) y+= y<70?2000:1900;
+    if(mo!==undefined) return mk(y,mo,+m[1]);
+  }
+  if((m = s.match(/^([A-Za-z]{3,9})[\s-](\d{1,2}),?[\s-](\d{2,4})$/))){
+    const mo=MON[m[1].slice(0,4).toLowerCase()] ?? MON[m[1].slice(0,3).toLowerCase()];
+    let y=+m[3]; if(y<100) y+= y<70?2000:1900;
+    if(mo!==undefined) return mk(y,mo,+m[2]);
+  }
+  // Excel serial
+  if(/^\d{5}$/.test(s)){
+    const d=new Date(Date.UTC(1899,11,30)); d.setUTCDate(d.getUTCDate()+ +s);
+    return mk(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate());
+  }
+  const t = Date.parse(s);
+  if(!isNaN(t)){ const d=new Date(t); return mk(d.getFullYear(),d.getMonth(),d.getDate()); }
+  return null;
+}
+function mk(y,m,d){ const x=new Date(y,m,d); return isNaN(x)?null:x; }
+function key(d){ return d? d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate() : null; }
+function fmt(d){
+  if(!d) return '—';
+  return String(d.getDate()).padStart(2,'0')+' '+
+         ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]+' '+
+         d.getFullYear();
+}
+function dayName(d){
+  return ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][d.getDay()];
+}
+function inputVal(d){
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+/* ---------- build people ---------- */
+let PEOPLE = [];      // {name, unit, mobile, trade, stints:[{doa,dod}]}
+let FETCHED_AT = null;
+let SKIPPED = 0;
+
+function build(csv){
+  const rows = parseCSV(csv);
+  const head = findHeader(rows);
+  if(!head) throw new Error('Could not find the Trade / DOA / DOD headings in the sheet.');
+  const {row:hr, map} = head;
+
+  const byPerson = new Map();
+  let skipped = 0;
+
+  for(let i=hr+1;i<rows.length;i++){
+    const r = rows[i];
+    const get = k => map[k]===undefined ? '' : String(r[map[k]] ?? '').trim();
+    const trade = get('trade');
+    const name  = get('name');
+    if(!trade && !name) continue;
+    if(!trade){ skipped++; continue; }
+
+    const mobile = get('mobile').replace(/[^\d+]/g,'');
+    const pk = norm(trade)+'|'+norm(name)+'|'+(mobile||'nonum'+i);
+    if(!byPerson.has(pk)){
+      byPerson.set(pk,{
+        trade: trade.trim(),
+        tradeKey: norm(trade),
+        name: name || 'Name not entered',
+        unit: get('unit'),
+        mobile,
+        remarks: get('remarks'),
+        stints: []
+      });
+    }
+    const p = byPerson.get(pk);
+    if(!p.unit) p.unit = get('unit');
+    if(!p.mobile && mobile) p.mobile = mobile;
+
+    const doa = parseDate(get('doa'));
+    const dod = parseDate(get('dod'));
+    const dup = p.stints.some(s=>key(s.doa)===key(doa) && key(s.dod)===key(dod));
+    if(!dup) p.stints.push({doa,dod});
+  }
+
+  SKIPPED = skipped;
+
+  // tidy trade labels: use the most common spelling per trade key
+  const label = new Map();
+  for(const p of byPerson.values()){
+    const c = label.get(p.tradeKey) || new Map();
+    c.set(p.trade,(c.get(p.trade)||0)+1);
+    label.set(p.tradeKey,c);
+  }
+  PEOPLE = [...byPerson.values()].map(p=>{
+    const c = label.get(p.tradeKey);
+    p.trade = [...c.entries()].sort((a,b)=>b[1]-a[1])[0][0];
+    return p;
+  });
+}
+
+function status(p, onDate){
+  const d = key(onDate);
+  let best = null;
+  for(const s of p.stints){
+    const a = key(s.doa), b = key(s.dod);
+    const arrived = a===null || a<=d;
+    const gone    = b!==null && b<d;
+    if(arrived && !gone){ best = s; break; }
+  }
+  if(best) return {on:true, stint:best};
+  const future = p.stints.filter(s=>key(s.doa)!==null && key(s.doa)>d).sort((x,y)=>key(x.doa)-key(y.doa))[0];
+  if(future) return {on:false, upcoming:true, stint:future};
+  const last = p.stints.filter(s=>key(s.dod)!==null).sort((x,y)=>key(y.dod)-key(x.dod))[0];
+  return {on:false, upcoming:false, stint:last||p.stints[0]||{doa:null,dod:null}};
+}
+
+function daysLeft(stint,onDate){
+  if(!stint || !stint.dod) return null;
+  return Math.round((stint.dod - onDate)/86400000);
+}
+
+/* ---------- render ---------- */
+const $ = id => document.getElementById(id);
+let selected = new Date(); selected.setHours(0,0,0,0);
+let openTrade = null;
+
+function groupsFor(date){
+  const g = new Map();
+  for(const p of PEOPLE){
+    if(!g.has(p.tradeKey)) g.set(p.tradeKey,{trade:p.trade,people:[],on:[],off:[]});
+    const bucket = g.get(p.tradeKey);
+    bucket.people.push(p);
+    const st = status(p,date);
+    (st.on ? bucket.on : bucket.off).push({p,st});
+  }
+  return [...g.values()].sort((a,b)=> b.on.length-a.on.length || a.trade.localeCompare(b.trade));
+}
+
+function render(){
+  $('date').value = inputVal(selected);
+  $('bigdate').firstChild.nodeValue = fmt(selected)+' ';
+  $('bigday').textContent = dayName(selected);
+
+  const groups = groupsFor(selected);
+  const totalOn = groups.reduce((n,g)=>n+g.on.length,0);
+  const totalAll = PEOPLE.length;
+
+  $('tally').innerHTML = totalAll
+    ? `<b class="num">${totalOn}</b> sewadal with us on this date, out of <span class="num">${totalAll}</span> on the register`
+    : 'No entries found in the register.';
+
+  const grid = $('grid');
+  if(!groups.length){
+    grid.innerHTML = '';
+    grid.appendChild(stateBox('Nothing to show','The register loaded but no trades were found in it.'));
+    return;
+  }
+
+  grid.innerHTML = '';
+  for(const g of groups){
+    const leaving = g.on.filter(x=>{const d=daysLeft(x.st.stint,selected); return d!==null && d<=3;}).length;
+    const btn = document.createElement('button');
+    btn.className = 'card'+(g.on.length?'':' zero');
+    btn.type='button';
+    btn.innerHTML =
+      `<div class="trade">${esc(g.trade)}</div>
+       <div class="figure"><span class="big num">${g.on.length}</span><span class="of num">/${g.people.length}</span></div>
+       <div class="sub">with us on this date</div>`+
+      (leaving? `<span class="chip">${leaving} leaving in 3 days</span>`:'');
+    btn.addEventListener('click',()=>openSheet(g.trade));
+    grid.appendChild(btn);
+  }
+
+  const parts = [];
+  if(FETCHED_AT) parts.push('Updated '+FETCHED_AT.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
+  if(SKIPPED) parts.push(SKIPPED+' row'+(SKIPPED>1?'s':'')+' skipped (no trade)');
+  $('foot').textContent = parts.join(' · ');
+  $('stamp').textContent = FETCHED_AT ? 'live from the sheet' : '';
+
+  if(openTrade) openSheet(openTrade, true);
+}
+
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function telHref(m){
+  if(!m) return null;
+  let d = m.replace(/[^\d]/g,'');
+  if(d.length===10) d = '91'+d;
+  if(d.length<10) return null;
+  return 'tel:+'+d;
+}
+function prettyNum(m){
+  const d = m.replace(/[^\d]/g,'');
+  if(d.length===10) return d.slice(0,5)+' '+d.slice(5);
+  return m;
+}
+
+function personRow({p,st}, onDuty){
+  const link = telHref(p.mobile);
+  const d = daysLeft(st.stint, selected);
+  let dates;
+  if(onDuty){
+    dates = 'Since '+fmt(st.stint.doa)+ (st.stint.dod? ' · leaving '+fmt(st.stint.dod) : ' · no departure date');
+    if(d!==null && d<=3) dates = 'Since '+fmt(st.stint.doa)+' · <span class="leaving">leaving '+fmt(st.stint.dod)+(d<=0?' (today)':' ('+d+'d)')+'</span>';
+  } else if(st.upcoming){
+    dates = 'Arriving '+fmt(st.stint.doa);
+  } else {
+    dates = st.stint && st.stint.dod ? 'Left on '+fmt(st.stint.dod) : 'Not on duty';
+  }
+  return `<div class="person${onDuty?'':' off'}">
+      <div class="pmain">
+        <div class="pname">${esc(p.name)}</div>
+        <div class="pmeta">${esc(p.unit||'Unit not entered')}${p.mobile?' · <span class="num">'+esc(prettyNum(p.mobile))+'</span>':''}</div>
+        <div class="pdates">${dates}</div>
+      </div>
+      ${link
+        ? `<a class="call" href="${link}"><svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.2.4 2.4.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C11 21 3 13 3 3c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.2 1l-2.3 2.2z"/></svg>Call</a>`
+        : `<span class="nonum">No number in sheet</span>`}
+    </div>`;
+}
+
+function openSheet(trade, silent){
+  openTrade = trade;
+  const g = groupsFor(selected).find(x=>x.trade===trade);
+  if(!g) return closeSheet();
+
+  $('sheetTitle').textContent = g.trade;
+  $('sheetSub').innerHTML = `<span class="num">${g.on.length}</span> of <span class="num">${g.people.length}</span> with us on ${fmt(selected)}`;
+
+  const on  = g.on.slice().sort((a,b)=>a.p.name.localeCompare(b.p.name));
+  const off = g.off.slice().sort((a,b)=>a.p.name.localeCompare(b.p.name));
+
+  let html = '';
+  if(on.length){
+    html += `<div class="grouphead">With us — tap Call to reach them</div>`;
+    html += on.map(x=>personRow(x,true)).join('');
+  } else {
+    html += `<div class="empty">No ${esc(g.trade.toLowerCase())} with us on this date.</div>`;
+  }
+  if(off.length){
+    html += `<div class="grouphead">Not on duty on this date (${off.length})</div>`;
+    html += off.map(x=>personRow(x,false)).join('');
+  }
+  $('sheetBody').innerHTML = html;
+  if(!silent) $('sheetBody').scrollTop = 0;
+  $('sheet').classList.add('open');
+  $('scrim').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeSheet(){
+  openTrade = null;
+  $('sheet').classList.remove('open');
+  $('scrim').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function stateBox(title, msg, retry){
+  const el = document.createElement('div');
+  el.className='state';
+  el.style.gridColumn='1 / -1';
+  el.innerHTML = `<b>${esc(title)}</b>${esc(msg)}`;
+  if(retry){
+    const b=document.createElement('button'); b.type='button'; b.textContent='Try again';
+    b.addEventListener('click',load); el.appendChild(b);
+  }
+  return el;
+}
+
+/* ---------- load ---------- */
+async function load(){
+  const grid = $('grid');
+  if(!PEOPLE.length) grid.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
+  let lastErr = null;
+  for(const url of SOURCES){
+    try{
+      const res = await fetch(url+(url.includes('?')?'&':'?')+'t='+Date.now(), {cache:'no-store'});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const text = await res.text();
+      if(/^\s*</.test(text)) throw new Error('The sheet is not published to the web.');
+      build(text);
+      FETCHED_AT = new Date();
+      render();
+      return;
+    }catch(e){ lastErr = e; }
+  }
+  grid.innerHTML='';
+  grid.appendChild(stateBox(
+    'Could not read the sheet',
+    (lastErr && lastErr.message ? lastErr.message+' ' : '')+'Check that the sheet is still published to the web, then try again.',
+    true));
+  $('tally').textContent = 'Register unavailable';
+}
+
+/* ---------- wiring ---------- */
+$('date').addEventListener('change', e=>{
+  const v = e.target.value;
+  if(!v) return;
+  const [y,m,d] = v.split('-').map(Number);
+  selected = new Date(y,m-1,d); selected.setHours(0,0,0,0);
+  render();
+});
+$('todayBtn').addEventListener('click',()=>{
+  selected = new Date(); selected.setHours(0,0,0,0);
+  render();
+});
+$('refresh').addEventListener('click',load);
+$('closeSheet').addEventListener('click',closeSheet);
+$('scrim').addEventListener('click',closeSheet);
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeSheet(); });
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) load(); });
+setInterval(load, 5*60*1000);
+
+$('date').value = inputVal(selected);
+load();
+</script>
+</body>
+</html>
